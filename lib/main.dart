@@ -50,21 +50,37 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+<<<<<<< HEAD
     _otomatikGirisKontrolEt();
   }
 
+=======
+    _otomatikGirisKontrolEt(); // Uygulama ilk açıldığında hafızayı kontrol et diyoruz 🚀
+  }
+
+  // --- CİHAZ HAFIZASINA BAKIP OTOMATİK GİRİŞ YAPMA FONKSİYONU ---
+>>>>>>> aac165487b367f8fae694785469570875f347bfe
   Future<void> _otomatikGirisKontrolEt() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool? hatirla = prefs.getBool('beni_hatirla');
     String? kayitliEmail = prefs.getString('kayitli_email');
     String? kayitliSifre = prefs.getString('kayitli_sifre');
 
+<<<<<<< HEAD
+=======
+    // Eğer kullanıcı çıkış yapmadıysa ve bilgileri duruyorsa otomatik giriş tetiklenir
+>>>>>>> aac165487b367f8fae694785469570875f347bfe
     if (hatirla == true && kayitliEmail != null && kayitliSifre != null) {
       _emailController.text = kayitliEmail;
       _passwordController.text = kayitliSifre;
       setState(() {
         _rememberMe = true;
       });
+<<<<<<< HEAD
+=======
+
+      // Bilgiler hafızadan çekildikten sonra direkt Firebase girişini tetikliyoruz
+>>>>>>> aac165487b367f8fae694785469570875f347bfe
       _loginWithFirebase();
     }
   }
@@ -97,14 +113,25 @@ class _MyHomePageState extends State<MyHomePage> {
         String role = userData['role'] ?? 'student';
 
         if (correctPassword == password) {
+<<<<<<< HEAD
           SharedPreferences prefs = await SharedPreferences.getInstance();
           if (_rememberMe) {
             // Kutuyu işaretliyse kalıcı hafızaya
+=======
+          // --- GİRİŞ BAŞARILI: HAFIZA KAYIT İŞLEMLERİ BAŞLIYOR ---
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          if (_rememberMe) {
+            // Kullanıcı kutuyu işaretlediyse verileri kalıcı hafızaya yazıyoruz
+>>>>>>> aac165487b367f8fae694785469570875f347bfe
             await prefs.setBool('beni_hatirla', true);
             await prefs.setString('kayitli_email', email);
             await prefs.setString('kayitli_sifre', password);
           } else {
+<<<<<<< HEAD
             // delete
+=======
+            // Kutuyu işaretlemediyse eski kalıntıları temizliyoruz
+>>>>>>> aac165487b367f8fae694785469570875f347bfe
             await prefs.remove('beni_hatirla');
             await prefs.remove('kayitli_email');
             await prefs.remove('kayitli_sifre');
@@ -153,7 +180,16 @@ class _MyHomePageState extends State<MyHomePage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
+<<<<<<< HEAD
             const WaveHeader(height: 280, icon: Icons.person),
+=======
+            Container(
+              height: 250,
+              width: double.infinity,
+              color: const Color.fromARGB(255, 108, 221, 74),
+              child: const Icon(Icons.person, size: 80, color: Colors.white),
+            ),
+>>>>>>> aac165487b367f8fae694785469570875f347bfe
             Padding(
               padding: const EdgeInsets.all(25.0),
               child: Column(
@@ -239,6 +275,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Text("GİRİŞ YAP"),
                   ),
+<<<<<<< HEAD
                   SizedBox(height: 12),
                   RichText(
                     text: TextSpan(
@@ -268,6 +305,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       ],
                     ),
                   ),
+=======
+>>>>>>> aac165487b367f8fae694785469570875f347bfe
                 ],
               ),
             ),
