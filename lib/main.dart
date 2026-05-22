@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
@@ -8,6 +9,7 @@ import 'password_reset.dart';
 import 'wave_header.dart';
 import 'package:mobil_app_edu/register_page.dart';
 import 'package:flutter/gestures.dart';
+import 'package:mobil_app_edu/log_service.dart'; // 🎯 Log servisini buraya import ettik kanka!
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,42 +52,35 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-<<<<<<< HEAD
     _otomatikGirisKontrolEt();
   }
 
-=======
-    _otomatikGirisKontrolEt(); // Uygulama ilk açıldığında hafızayı kontrol et diyoruz 🚀
-  }
-
-  // --- CİHAZ HAFIZASINA BAKIP OTOMATİK GİRİŞ YAPMA FONKSİYONU ---
->>>>>>> aac165487b367f8fae694785469570875f347bfe
   Future<void> _otomatikGirisKontrolEt() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool? hatirla = prefs.getBool('beni_hatirla');
     String? kayitliEmail = prefs.getString('kayitli_email');
     String? kayitliSifre = prefs.getString('kayitli_sifre');
 
-<<<<<<< HEAD
-=======
-    // Eğer kullanıcı çıkış yapmadıysa ve bilgileri duruyorsa otomatik giriş tetiklenir
->>>>>>> aac165487b367f8fae694785469570875f347bfe
     if (hatirla == true && kayitliEmail != null && kayitliSifre != null) {
       _emailController.text = kayitliEmail;
       _passwordController.text = kayitliSifre;
       setState(() {
         _rememberMe = true;
       });
-<<<<<<< HEAD
-=======
-
-      // Bilgiler hafızadan çekildikten sonra direkt Firebase girişini tetikliyoruz
->>>>>>> aac165487b367f8fae694785469570875f347bfe
-      _loginWithFirebase();
+      _loginWithFirebase(
+        isAutomatic: true,
+      ); // Otomatik giriş olduğunu belirtiyoruz kanka
+    } else {
+      _emailController.clear();
+      _passwordController.clear();
+      setState(() {
+        _rememberMe = false;
+      });
     }
   }
 
-  Future<void> _loginWithFirebase() async {
+  // 🎯 Log sistemine uyumlu giriş fonksiyonu
+  Future<void> _loginWithFirebase({bool isAutomatic = false}) async {
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
 
@@ -99,63 +94,69 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     try {
-      var querySnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .where('email', isEqualTo: email)
-          .get();
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
 
-      if (querySnapshot.docs.isNotEmpty) {
-        var userData = querySnapshot.docs.first.data();
-        String correctPassword = userData['password'] ?? '';
-        String name = userData['name'] ?? '';
+      if (userCredential.user != null) {
+        var querySnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .where('email', isEqualTo: email)
+            .get();
 
-        String userEmail = userData['email'] ?? email;
-        String role = userData['role'] ?? 'student';
+        String name = "Kullanıcı";
+        String role = "student";
 
-        if (correctPassword == password) {
-<<<<<<< HEAD
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          if (_rememberMe) {
-            // Kutuyu işaretliyse kalıcı hafızaya
-=======
-          // --- GİRİŞ BAŞARILI: HAFIZA KAYIT İŞLEMLERİ BAŞLIYOR ---
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          if (_rememberMe) {
-            // Kullanıcı kutuyu işaretlediyse verileri kalıcı hafızaya yazıyoruz
->>>>>>> aac165487b367f8fae694785469570875f347bfe
-            await prefs.setBool('beni_hatirla', true);
-            await prefs.setString('kayitli_email', email);
-            await prefs.setString('kayitli_sifre', password);
-          } else {
-<<<<<<< HEAD
-            // delete
-=======
-            // Kutuyu işaretlemediyse eski kalıntıları temizliyoruz
->>>>>>> aac165487b367f8fae694785469570875f347bfe
-            await prefs.remove('beni_hatirla');
-            await prefs.remove('kayitli_email');
-            await prefs.remove('kayitli_sifre');
-          }
-
-          if (mounted) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => HomePages(
-                  kullaniciAdi: name,
-                  kullaniciEmail: userEmail,
-                  kullaniciRol: role,
-                ),
-              ),
-            );
-          }
+        if (querySnapshot.docs.isNotEmpty) {
+          var userData = querySnapshot.docs.first.data();
+          name = userData['name'] ?? userData['kullaniciAdi'] ?? 'Kullanıcı';
+          role = userData['role'] ?? userData['rol'] ?? 'student';
         } else {
-          _showErrorSnackBar('Hatalı şifre girdiniz!');
+          name = email.split('@').first;
         }
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        if (_rememberMe) {
+          await prefs.setBool('beni_hatirla', true);
+          await prefs.setString('kayitli_email', email);
+          await prefs.setString('kayitli_sifre', password);
+        } else {
+          await prefs.remove('beni_hatirla');
+          await prefs.remove('kayitli_email');
+          await prefs.remove('kayitli_sifre');
+        }
+
+        if (mounted) {
+          // 🎯 EN KRİTİK NOKTA: Sayfa yönlenmeden hemen önce log kaydını basıyoruz kanka
+          LogService.logYaz(
+            email: email,
+            adSoyad: name,
+            islem: isAutomatic ? "Otomatik Giriş Yapıldı" : "Giriş Yapıldı",
+            detay: isAutomatic
+                ? "$name ($email) 'Beni Hatırla' ile otomatik giriş yaptı."
+                : "$name ($email) sisteme başarılı bir şekilde giriş yaptı.",
+          );
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomePages(
+                kullaniciAdi: name,
+                kullaniciEmail: email,
+                kullaniciRol: role,
+              ),
+            ),
+          ).then((_) {
+            _otomatikGirisKontrolEt();
+          });
+        }
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found' ||
+          e.code == 'invalid-credential' ||
+          e.code == 'wrong-password') {
+        _showErrorSnackBar('Hatalı e-posta veya şifre girdiniz!');
       } else {
-        _showErrorSnackBar(
-          'Bu e-posta adresi ile kayıtlı kullanıcı bulunamadı',
-        );
+        _showErrorSnackBar('Giriş başarısız: ${e.message}');
       }
     } catch (e) {
       _showErrorSnackBar('Bir hata oluştu: $e');
@@ -180,16 +181,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-<<<<<<< HEAD
             const WaveHeader(height: 280, icon: Icons.person),
-=======
-            Container(
-              height: 250,
-              width: double.infinity,
-              color: const Color.fromARGB(255, 108, 221, 74),
-              child: const Icon(Icons.person, size: 80, color: Colors.white),
-            ),
->>>>>>> aac165487b367f8fae694785469570875f347bfe
             Padding(
               padding: const EdgeInsets.all(25.0),
               child: Column(
@@ -261,7 +253,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   const SizedBox(height: 10),
                   ElevatedButton(
-                    onPressed: _isLoading ? null : _loginWithFirebase,
+                    onPressed: _isLoading
+                        ? null
+                        : () => _loginWithFirebase(isAutomatic: false),
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 60),
                       backgroundColor: const Color.fromARGB(255, 108, 221, 74),
@@ -275,8 +269,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Text("GİRİŞ YAP"),
                   ),
-<<<<<<< HEAD
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   RichText(
                     text: TextSpan(
                       style: const TextStyle(
@@ -293,7 +286,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             decoration: TextDecoration.none,
                           ),
                           recognizer: TapGestureRecognizer()
-                            ..onTap = () {
+                            ?..onTap = () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -305,8 +298,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       ],
                     ),
                   ),
-=======
->>>>>>> aac165487b367f8fae694785469570875f347bfe
                 ],
               ),
             ),
