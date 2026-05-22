@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "953931101491",
+    "project_id": "kubrayolcu-rezervedu",
+    "storage_bucket": "kubrayolcu-rezervedu.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:953931101491:android:9b93fd5132ca52477afa46",
+        "android_client_info": {
+          "package_name": "com.example.mobil_app_edu"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBO_rpMngUrBHP-IwUTEhUF4YnuphFAL2w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
