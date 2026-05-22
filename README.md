@@ -1,13 +1,13 @@
 
-Uygulama Adı :RezervEdu-Mobil Stüdyo Ders Kayıt Sistemi
+Uygulama Adı :RezervEdu
 
 -Öğrenci Bilgilerim-
 KÜBRA YOLCU 
 243301038
               
               
-  -Test Hesabı Bilgileri -
-  Öğretmen rolü için 
+              -Test Hesabı Bilgileri -
+Öğretmen rolü için 
 email:  zeynep@gmail.com 
 password: 13261326
 Ders Ekleme, Düzenleme, Silme
@@ -43,3 +43,9 @@ Mevcut Dersleri Görüntüleme ve Derse Kaydolma
 ![Öğrenci Ders Ekranı](assets/images/student_lesson_page.png)
 
 ![Öğretmen Ders Ekranı](assets/images/teacher_lesson_page.png)
+
+![Öğrenci Ders Ekranı](assets/images/Firebaselogkaydi(1).png)
+
+![Öğrenci Ders Ekranı](assets/images/Firebaselogkaydi(2).png)
+
+
